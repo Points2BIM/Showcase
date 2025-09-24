@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AR Architekturmodell</title>
-  <!-- Model Viewer Bibliothek -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body, html {
@@ -16,24 +15,56 @@
       justify-content: center;
       align-items: center;
       background-color: #f0f0f0;
+      overflow: hidden;
+      font-family: sans-serif;
     }
+
+    #loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2rem;
+      color: #333;
+    }
+
     model-viewer {
       width: 100%;
       height: 100vh;
+      display: none; /* wird nach Laden angezeigt */
     }
   </style>
 </head>
 <body>
-  <!-- AR-Modell -->
+  <div id="loader">Modell wird geladen...</div>
+
   <model-viewer 
-    src="P2BShowcase.glb"        <!-- Hier den Dateinamen deines Modells einfügen -->
+    id="arModel"
+    src="DEIN_MODELL.glb"           <!-- Hier dein GLB-Dateiname -->
     alt="Architekturmodell" 
     ar 
     ar-modes="webxr scene-viewer quick-look" 
     camera-controls 
     auto-rotate
+    reveal="auto"
+    placement="floor"
     exposure="1"
     background-color="#ffffff">
   </model-viewer>
+
+  <script>
+    const model = document.getElementById('arModel');
+    const loader = document.getElementById('loader');
+
+    model.addEventListener('progress', (event) => {
+      const percent = Math.floor(event.detail.totalProgress * 100);
+      loader.innerText = `Lädt Modell: ${percent}%`;
+    });
+
+    model.addEventListener('load', () => {
+      loader.style.display = 'none';
+      model.style.display = 'block';
+    });
+  </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>P2BIM Modell</title>
+  <title>Neues Architekturmodell 2025</title>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.0.1/model-viewer.min.js"></script>
   <style>
     html, body {
@@ -12,6 +12,7 @@
       justify-content: center;
       align-items: center;
       background: #f4f4f4;
+      font-family: sans-serif;
     }
 
     model-viewer {
@@ -19,6 +20,7 @@
       height: 100%;
       max-width: 100%;
       max-height: 100%;
+      background-color: #f4f4f4;
     }
 
     /* Fortschrittsbalken */
@@ -30,28 +32,14 @@
       background: rgba(255, 255, 255, 0.3);
       border-radius: 2px;
       overflow: hidden;
+      transition: opacity 0.3s;
     }
 
     .progress-bar .update-bar {
       height: 100%;
       width: 0%;
       background: #4caf50;
-    }
-
-    .hide { display: none; }
-
-    /* AR-Prompt */
-    #ar-prompt {
-      position: absolute;
-      bottom: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      pointer-events: none;
-    }
-
-    #ar-prompt img {
-      width: 50px;
-      height: 50px;
+      transition: width 0.2s;
     }
 
     /* AR-Button */
@@ -67,6 +55,23 @@
       background-color: #0078ff;
       color: white;
       cursor: pointer;
+      display: none; /* wird erst sichtbar, wenn Modell geladen */
+    }
+
+    /* AR-Prompt */
+    #ar-prompt {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #ar-prompt img {
+      width: 50px;
+      height: 50px;
     }
   </style>
 </head>
@@ -81,23 +86,42 @@
     shadow-intensity="1.17" 
     exposure="0.27" 
     shadow-softness="0.71" 
-    environment-image="legacy">
+    environment-image="legacy"
+    id="modelViewer">
 
-    <!-- Fortschrittsbalken -->
-    <div class="progress-bar hide" slot="progress-bar">
-      <div class="update-bar"></div>
+    <div class="progress-bar" slot="progress-bar">
+      <div class="update-bar" id="updateBar"></div>
     </div>
 
-    <!-- AR Button -->
     <button slot="ar-button" id="ar-button">
       View in your space
     </button>
 
-    <!-- AR Prompt -->
     <div id="ar-prompt">
       <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
     </div>
   </model-viewer>
+
+  <script>
+    const modelViewer = document.getElementById('modelViewer');
+    const updateBar = document.getElementById('updateBar');
+    const arButton = document.getElementById('ar-button');
+    const arPrompt = document.getElementById('ar-prompt');
+
+    modelViewer.addEventListener('progress', (event) => {
+      const progress = event.detail.totalProgress; // 0.0 bis 1.0
+      updateBar.style.width = `${progress * 100}%`;
+    });
+
+    modelViewer.addEventListener('load', () => {
+      // Fortschrittsbalken ausblenden
+      updateBar.style.width = '100%';
+      setTimeout(() => {
+        updateBar.parentElement.style.opacity = 0;
+        arButton.style.display = 'block';
+        arPrompt.style.opacity = 1;
+      }, 300);
+    });
+  </script>
 </body>
 </html>
-

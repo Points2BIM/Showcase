@@ -39,17 +39,15 @@
   <div id="loader">Modell wird geladen...</div>
 
   <model-viewer 
-    id="arModel"
-    src="P2BShowcase.glb"           <!-- Hier dein GLB-Dateiname -->
-    alt="Architekturmodell" 
-    ar 
-    ar-modes="webxr scene-viewer quick-look" 
-    camera-controls 
-    auto-rotate
-    reveal="auto"
-    placement="floor"
-    exposure="1"
-    background-color="#ffffff">
+  src="P2BShowcase.glb"
+  ios-src="P2BShowcase.usdz"
+  alt="Architekturmodell"
+  ar
+  ar-modes="webxr scene-viewer quick-look"
+  camera-controls
+  auto-rotate
+  placement="floor"
+  background-color="#ffffff">
   </model-viewer>
 
   <script>
@@ -68,3 +66,4 @@
   </script>
 </body>
 </html>
+

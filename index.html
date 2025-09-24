@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Neues Architekturmodell 2025</title>
+  <title>P2BIM Modell</title>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.0.1/model-viewer.min.js"></script>
   <style>
     html, body {
@@ -55,7 +55,7 @@
       background-color: #0078ff;
       color: white;
       cursor: pointer;
-      display: none; /* wird erst sichtbar, wenn Modell geladen */
+      display: none; /* erst sichtbar, wenn Modell geladen */
     }
 
     /* AR-Prompt */
@@ -77,26 +77,29 @@
 </head>
 <body>
   <model-viewer 
-    src="P2BShowcase.glb" 
-    ar 
-    ar-modes="scene-viewer webxr quick-look" 
-    camera-controls 
-    tone-mapping="neutral" 
-    poster="poster.webp" 
-    shadow-intensity="1.17" 
-    exposure="0.27" 
-    shadow-softness="0.71" 
-    environment-image="legacy"
-    id="modelViewer">
+    id="modelViewer"
+    src="P2BShowcase.glb"
+    ar
+    ar-modes="scene-viewer webxr quick-look"
+    camera-controls
+    tone-mapping="neutral"
+    poster=""
+    shadow-intensity="1.17"
+    exposure="0.27"
+    shadow-softness="0.71"
+    environment-image="legacy">
 
+    <!-- Fortschrittsbalken -->
     <div class="progress-bar" slot="progress-bar">
       <div class="update-bar" id="updateBar"></div>
     </div>
 
+    <!-- AR Button -->
     <button slot="ar-button" id="ar-button">
       View in your space
     </button>
 
+    <!-- AR Prompt -->
     <div id="ar-prompt">
       <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
     </div>
@@ -108,13 +111,14 @@
     const arButton = document.getElementById('ar-button');
     const arPrompt = document.getElementById('ar-prompt');
 
+    // Ladefortschritt
     modelViewer.addEventListener('progress', (event) => {
       const progress = event.detail.totalProgress; // 0.0 bis 1.0
       updateBar.style.width = `${progress * 100}%`;
     });
 
+    // Nach Laden: Fortschrittsbalken ausblenden & AR-Button zeigen
     modelViewer.addEventListener('load', () => {
-      // Fortschrittsbalken ausblenden
       updateBar.style.width = '100%';
       setTimeout(() => {
         updateBar.parentElement.style.opacity = 0;

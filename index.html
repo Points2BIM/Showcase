@@ -1,11 +1,66 @@
-<model-viewer
-  src="./P2BShowcase.glb"
-  ios-src="./P2BShowcase.usdz"
-  alt="Architekturmodell"
-  ar
-  ar-modes="quick-look scene-viewer webxr"
-  camera-controls
-  auto-rotate
-  placement="floor"
-  exposure="1">
-</model-viewer>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Architekturmodell</title>
+  <!-- Model Viewer Bibliothek laden -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    model-viewer {
+      width: 100%;
+      height: 100vh;
+    }
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: sans-serif;
+      font-size: 1.2rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">Modell wird geladen...</div>
+
+  <model-viewer
+    id="viewer"
+    src="./P2BShowcase.glb"
+    ios-src="./P2BShowcase.usdz"
+    alt="Architekturmodell"
+    ar
+    ar-modes="quick-look scene-viewer webxr"
+    camera-controls
+    auto-rotate
+    placement="floor"
+    exposure="1"
+    reveal="auto"
+    background-color="#ffffff">
+  </model-viewer>
+
+  <script>
+    const viewer = document.getElementById('viewer');
+    const loading = document.getElementById('loading');
+
+    viewer.addEventListener('progress', (event) => {
+      const percent = Math.floor(event.detail.totalProgress * 100);
+      loading.innerText = `Lädt Modell: ${percent}%`;
+    });
+
+    viewer.addEventListener('load', () => {
+      loading.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

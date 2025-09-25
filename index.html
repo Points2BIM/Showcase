@@ -17,7 +17,7 @@
     model-viewer {
       width: 100%;
       height: 100vh;
-      touch-action: none; /* für Pinch + Drehung */
+      touch-action: none; /* Pinch + Drehung */
       transform-origin: center bottom; /* Bodenplatzierung */
       display: block;
     }
@@ -28,6 +28,19 @@
       transform: translate(-50%, -50%);
       font-size: 1.2rem;
       color: #333;
+    }
+    #ar-center-btn {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.9);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      z-index: 10;
     }
   </style>
 </head>
@@ -50,9 +63,13 @@
     shadow-intensity="1">
   </model-viewer>
 
+  <!-- AR-Zentrier-Button -->
+  <button id="ar-center-btn">Modell zentrieren</button>
+
   <script>
     const viewer = document.getElementById('viewer');
     const loading = document.getElementById('loading');
+    const centerBtn = document.getElementById('ar-center-btn');
 
     let initialDistance = null;
     let lastTouchX = null;
@@ -71,7 +88,7 @@
       viewer.style.transformOrigin = 'center bottom';
     });
 
-    // Touch-Gesten: Pinch für Skalierung, Swipe für Drehung
+    // Touch-Gesten: Pinch + Drehung
     viewer.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
         const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -91,7 +108,7 @@
         currentScale *= factor;
         currentScale = Math.max(0.1, Math.min(currentScale, 10));
         viewer.scale = currentScale;
-        viewer.style.transformOrigin = 'center bottom'; // Boden zentriert halten
+        viewer.style.transformOrigin = 'center bottom';
         initialDistance = currentDistance;
       } else if (e.touches.length === 1 && lastTouchX !== null) {
         const deltaX = e.touches[0].clientX - lastTouchX;
@@ -107,20 +124,22 @@
       if (e.touches.length === 0) lastTouchX = null;
     });
 
-    // AR-Session: Modell immer am Boden zentrieren
+    // AR-Zentrier-Button Funktion
+    centerBtn.addEventListener('click', () => {
+      // Modell in AR und 2D auf Boden zentrieren
+      viewer.cameraTarget = '0m 0m 0m';
+      viewer.style.transformOrigin = 'center bottom';
+      viewer.scale = currentScale; // aktuelle Skalierung beibehalten
+    });
+
+    // Sicherstellen, dass AR immer am Boden zentriert startet
     viewer.addEventListener('ar-status', (event) => {
       if (event.detail.status === 'session-started') {
-        // Aktuelle Skalierung übernehmen
         viewer.scale = currentScale;
-        // Transform-Origin für Bodenplatzierung sichern
         viewer.style.transformOrigin = 'center bottom';
       }
     });
 
-    // Sicherheits-Check: Wenn AR-Session endet und wieder gestartet wird, Position korrigieren
-    viewer.addEventListener('ar-tracking', () => {
-      viewer.style.transformOrigin = 'center bottom';
-    });
   </script>
 </body>
 </html>

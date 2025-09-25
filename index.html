@@ -1,26 +1,11 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR Modell</title>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-  <style>
-    html, body { margin: 0; padding: 0; height: 100%; background: #f0f0f0; }
-    model-viewer { width: 100%; height: 100vh; }
-  </style>
-</head>
-<body>
-  <model-viewer
-    src="./P2BShowcase.glb"        <!-- GLB-Datei im gleichen Ordner -->
-    ios-src="./P2BShowcase.usdz"   <!-- USDZ-Datei für iOS -->
-    alt="Architekturmodell"
-    ar
-    ar-modes="webxr scene-viewer quick-look"
-    camera-controls
-    auto-rotate
-    placement="floor"
-    exposure="1">
-  </model-viewer>
-</body>
-</html>
+<model-viewer
+  src="./P2BShowcase.glb"
+  ios-src="./P2BShowcase.usdz"
+  alt="Architekturmodell"
+  ar
+  ar-modes="quick-look scene-viewer webxr"
+  camera-controls
+  auto-rotate
+  placement="floor"
+  exposure="1">
+</model-viewer>

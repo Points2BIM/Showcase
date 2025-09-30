@@ -1,106 +1,85 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>P2BShowcase Auto-Skaliert & Responsive</title>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #f0f0f0;
-      overflow: hidden;
-    }
-    model-viewer {
-      width: 100%;
-      height: 100vh;
-      display: block;
-      touch-action: none;
-      transform-origin: center bottom;
-    }
-    #loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.2rem;
-      color: #333;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P2BShowcase Auto-Skaliert Hochkant</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #f0f0f0;
+  overflow: hidden;
+}
+model-viewer {
+  width: 100%;
+  height: 100vh;
+  display: block;
+  touch-action: none;
+  transform-origin: center bottom;
+}
+#loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  color: #333;
+}
+</style>
 </head>
 <body>
-  <div id="loading">Modell wird geladen...</div>
+<div id="loading">Modell wird geladen...</div>
 
-  <model-viewer
-    id="viewer"
-    src="./P2BShowcase.glb"
-    ios-src="./P2BShowcase.usdz"
-    alt="P2BShowcase Architekturmodell"
-    ar
-    ar-modes="quick-look scene-viewer webxr"
-    camera-controls
-    placement="floor"
-    exposure="1"
-    reveal="auto"
-    shadow-intensity="1"
-    background-color="#ffffff">
-  </model-viewer>
+<model-viewer
+  id="viewer"
+  src="./P2BShowcase.glb"
+  ios-src="./P2BShowcase.usdz"
+  alt="P2BShowcase Architekturmodell"
+  ar
+  ar-modes="quick-look scene-viewer webxr"
+  camera-controls
+  placement="floor"
+  exposure="1"
+  reveal="auto"
+  shadow-intensity="1"
+  background-color="#ffffff">
+</model-viewer>
 
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-  <script>
-    const viewer = document.getElementById('viewer');
-    const loading = document.getElementById('loading');
-    let model, currentScale = 1;
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+const viewer = document.getElementById('viewer');
+const loading = document.getElementById('loading');
+let currentScale = 1;
 
-    // Ladeanzeige
-    viewer.addEventListener('progress', (event) => {
-      const percent = Math.floor(event.detail.totalProgress * 100);
-      loading.innerText = `Lädt Modell: ${percent}%`;
-    });
+// Ladeanzeige
+viewer.addEventListener('progress', (event) => {
+  const percent = Math.floor(event.detail.totalProgress * 100);
+  loading.innerText = `Lädt Modell: ${percent}%`;
+});
 
-    viewer.addEventListener('load', async () => {
-      loading.style.display = 'none';
-      model = viewer.model;
-      await model.updateWorldMatrix(true, true);
-      scaleToScreen();
-    });
+// Warten bis alle Meshes gerendert sind
+viewer.addEventListener('load', () => {
+  loading.style.display = 'none';
+  fitModelToScreen();
+});
 
-    // Funktion: Modell an Bildschirm anpassen
-    function scaleToScreen() {
-      if (!model) return;
+// Funktion: Modell an Bildschirmhöhe anpassen
+function fitModelToScreen() {
+  const model = viewer.model;
 
-      // Bounding Box berechnen
-      const bbox = new THREE.Box3().setFromObject(model);
-      const size = new THREE.Vector3();
-      bbox.getSize(size);
-      const maxDimension = Math.max(size.x, size.y, size.z);
+  // Alle Meshes sammeln
+  const meshes = [];
+  model.traverse((child) => {
+    if (child.isMesh) meshes.push(child);
+  });
 
-      // Bildschirmhöhe / Breite abhängig von Hoch-/Querformat
-      const aspect = window.innerWidth / window.innerHeight;
-      const fov = 45 * Math.PI / 180; // Standard FOV in rad
-      const screenHeight = 2 * Math.tan(fov / 2); // relative Höhe = 1 Einheit = Bildschirm
-      let scale = screenHeight / maxDimension * 0.9; // 0.9 = kleiner Rand
+  if (meshes.length === 0) return;
 
-      // Skalierung auf dem Modell anwenden
-      currentScale = scale;
-      viewer.scale = currentScale;
-      viewer.style.transformOrigin = 'center bottom';
-    }
-
-    // Dynamisch nach Bildschirmrotation anpassen
-    window.addEventListener('resize', () => {
-      scaleToScreen();
-    });
-
-    // AR-Session: Bodenplatzierung und Skalierung sichern
-    viewer.addEventListener('ar-status', (event) => {
-      if (event.detail.status === 'session-started') {
-        viewer.scale = currentScale;
-        viewer.style.transformOrigin = 'center bottom';
-      }
-    });
-  </script>
-</body>
-</html>
+  // Bounding Box der gesamten Szene berechnen
+  const bbox = new THREE.Box3().setFromObject(model);
+  const size = new THREE.Vector3();
+  bbox.getSize(size);
+  const maxDim

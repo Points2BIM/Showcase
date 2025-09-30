@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>P2BShowcase Auto-Skaliert Hochkant</title>
+<title>P2BShowcase - Fixierte Skalierung</title>
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 <style>
 html, body {
@@ -18,7 +18,7 @@ model-viewer {
   height: 100vh;
   display: block;
   touch-action: none;
-  transform-origin: center bottom;
+  transform-origin: center bottom; /* Modell am Boden fixieren */
 }
 #loading {
   position: absolute;
@@ -31,6 +31,7 @@ model-viewer {
 </style>
 </head>
 <body>
+
 <div id="loading">Modell wird geladen...</div>
 
 <model-viewer
@@ -42,17 +43,16 @@ model-viewer {
   ar-modes="quick-look scene-viewer webxr"
   camera-controls
   placement="floor"
+  scale="0.04"  <!-- feste Skalierung 4% -->
   exposure="1"
   reveal="auto"
   shadow-intensity="1"
   background-color="#ffffff">
 </model-viewer>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 const viewer = document.getElementById('viewer');
 const loading = document.getElementById('loading');
-let currentScale = 1;
 
 // Ladeanzeige
 viewer.addEventListener('progress', (event) => {
@@ -60,26 +60,20 @@ viewer.addEventListener('progress', (event) => {
   loading.innerText = `Lädt Modell: ${percent}%`;
 });
 
-// Warten bis alle Meshes gerendert sind
 viewer.addEventListener('load', () => {
   loading.style.display = 'none';
-  fitModelToScreen();
+  viewer.scale = 0.04; // Feste Skalierung 4%
+  viewer.style.transformOrigin = 'center bottom'; // Boden fixieren
 });
 
-// Funktion: Modell an Bildschirmhöhe anpassen
-function fitModelToScreen() {
-  const model = viewer.model;
+// AR-Session: Skalierung beibehalten
+viewer.addEventListener('ar-status', (event) => {
+  if (event.detail.status === 'session-started') {
+    viewer.scale = 0.04;
+    viewer.style.transformOrigin = 'center bottom';
+  }
+});
+</script>
 
-  // Alle Meshes sammeln
-  const meshes = [];
-  model.traverse((child) => {
-    if (child.isMesh) meshes.push(child);
-  });
-
-  if (meshes.length === 0) return;
-
-  // Bounding Box der gesamten Szene berechnen
-  const bbox = new THREE.Box3().setFromObject(model);
-  const size = new THREE.Vector3();
-  bbox.getSize(size);
-  const maxDim
+</body>
+</html>

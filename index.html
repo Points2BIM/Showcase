@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR P2BShowcase</title>
+  <title>P2BShowcase Auto-Skaliert & Responsive</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     html, body {
@@ -12,14 +12,13 @@
       height: 100%;
       background: #f0f0f0;
       overflow: hidden;
-      font-family: sans-serif;
     }
     model-viewer {
       width: 100%;
       height: 100vh;
       display: block;
       touch-action: none;
-      transform-origin: center bottom; /* Boden als Fixpunkt */
+      transform-origin: center bottom;
     }
     #loading {
       position: absolute;
@@ -49,23 +48,58 @@
     background-color="#ffffff">
   </model-viewer>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script>
     const viewer = document.getElementById('viewer');
     const loading = document.getElementById('loading');
+    let model, currentScale = 1;
 
+    // Ladeanzeige
     viewer.addEventListener('progress', (event) => {
       const percent = Math.floor(event.detail.totalProgress * 100);
       loading.innerText = `Lädt Modell: ${percent}%`;
     });
 
-    // Sobald das Modell geladen ist -> automatisch an Bildschirm anpassen
-    viewer.addEventListener('load', () => {
+    viewer.addEventListener('load', async () => {
       loading.style.display = 'none';
+      model = viewer.model;
+      await model.updateWorldMatrix(true, true);
+      scaleToScreen();
+    });
 
-      // Kamera so einstellen, dass das Modell optimal ins Sichtfeld passt
-      viewer.cameraOrbit = "0deg 75deg auto"; 
-      viewer.fieldOfView = "auto"; 
-      viewer.cameraTarget = "auto auto auto";
+    // Funktion: Modell an Bildschirm anpassen
+    function scaleToScreen() {
+      if (!model) return;
+
+      // Bounding Box berechnen
+      const bbox = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3();
+      bbox.getSize(size);
+      const maxDimension = Math.max(size.x, size.y, size.z);
+
+      // Bildschirmhöhe / Breite abhängig von Hoch-/Querformat
+      const aspect = window.innerWidth / window.innerHeight;
+      const fov = 45 * Math.PI / 180; // Standard FOV in rad
+      const screenHeight = 2 * Math.tan(fov / 2); // relative Höhe = 1 Einheit = Bildschirm
+      let scale = screenHeight / maxDimension * 0.9; // 0.9 = kleiner Rand
+
+      // Skalierung auf dem Modell anwenden
+      currentScale = scale;
+      viewer.scale = currentScale;
+      viewer.style.transformOrigin = 'center bottom';
+    }
+
+    // Dynamisch nach Bildschirmrotation anpassen
+    window.addEventListener('resize', () => {
+      scaleToScreen();
+    });
+
+    // AR-Session: Bodenplatzierung und Skalierung sichern
+    viewer.addEventListener('ar-status', (event) => {
+      if (event.detail.status === 'session-started') {
+        viewer.scale = currentScale;
+        viewer.style.transformOrigin = 'center bottom';
+      }
     });
   </script>
 </body>

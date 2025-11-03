@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>P2BShowcase - Fixierte Skalierung</title>
-<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<title>P2BShowcase - AR Ansicht</title>
+<script type="module" src="./assets/model-viewer.min.js"></script>
 <style>
 html, body {
   margin: 0;
@@ -19,6 +19,33 @@ model-viewer {
   display: block;
   touch-action: none;
   transform-origin: center bottom; /* Modell am Boden fixieren */
+}
+#arButton {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 2;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+}
+#ios-ar-fallback {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 2;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
 }
 #loading {
   position: absolute;
@@ -36,19 +63,24 @@ model-viewer {
 
 <model-viewer
   id="viewer"
-  src="https://points2bim.github.io/Showcase/P2BShowcase.glb"
-  ios-src="https://points2bim.github.io/Showcase/P2BShowcase.usdz"
+  src="./P2BShowcase.glb"
+  ios-src="./P2BShowcase.usdz"
   alt="P2BShowcase Architekturmodell"
   ar
   ar-modes="quick-look scene-viewer webxr"
+  ar-scale="fixed"
   camera-controls
   placement="floor"
-  scale="0.04"  <!-- feste Skalierung 4% -->
+  scale="0.04 0.04 0.04"
   exposure="1"
   reveal="auto"
   shadow-intensity="1"
   background-color="#ffffff">
+  <button id="arButton" slot="ar-button">In AR ansehen</button>
 </model-viewer>
+
+<!-- iOS Fallback-Link für Quick Look (falls benötigt) -->
+<a id="ios-ar-fallback" href="./P2BShowcase.usdz" rel="ar" style="display:none;">In AR (iOS) öffnen</a>
 
 <script>
 const viewer = document.getElementById('viewer');
@@ -62,20 +94,32 @@ viewer.addEventListener('progress', (event) => {
 
 viewer.addEventListener('load', () => {
   loading.style.display = 'none';
-  viewer.scale = 0.04; 
-  viewer.style.transformOrigin = 'center bottom'; // Boden fixieren
+  // Feste Skalierung 4% in allen Achsen sicherstellen
+  viewer.setAttribute('scale', '0.04 0.04 0.04');
+  viewer.style.transformOrigin = 'center bottom';
 });
 
 // AR-Session: Skalierung beibehalten
 viewer.addEventListener('ar-status', (event) => {
   if (event.detail.status === 'session-started') {
-    viewer.scale = 0.04;
+    viewer.setAttribute('scale', '0.04 0.04 0.04');
     viewer.style.transformOrigin = 'center bottom';
   }
 });
+
+// Während AR-Frames Skala stabil halten (insb. WebXR)
+viewer.addEventListener('ar-frame', () => {
+  viewer.setAttribute('scale', '0.04 0.04 0.04');
+});
+
+// Einfacher iOS-Check für optionalen Fallback-Link
+const isIOS = /iPad|iPhone|iPod/.test(window.navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+if (isIOS) {
+  const fallback = document.getElementById('ios-ar-fallback');
+  // Nur anzeigen, wenn aus irgendeinem Grund der eingebaute AR-Button nicht greift
+  fallback.style.display = 'inline-block';
+}
 </script>
 
 </body>
 </html>
-
-
